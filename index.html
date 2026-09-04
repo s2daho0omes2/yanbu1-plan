@@ -554,6 +554,11 @@ td.c{text-align:center}
 
     <div class="gtools">
       <label class="ctl"><span>بداية التنفيذ</span><input type="date" id="startDate" value="2026-08-30"></label>
+      <span class="ctl" style="display:inline-flex;align-items:center;gap:6px"><span>المدة</span>
+        <button class="btn ghost" id="removeDays" type="button" style="padding:2px 10px;min-width:0">−7</button>
+        <span id="daysLabel" class="num" style="min-width:50px;text-align:center">30 يوم</span>
+        <button class="btn ghost" id="addDays" type="button" style="padding:2px 10px;min-width:0">+7</button>
+      </span>
       <button class="btn" id="addLane" type="button">+ مسار جديد</button>
       <button class="btn" id="copyJson" type="button">نسخ البيانات</button>
       <button class="btn ghost" id="resetBtn" type="button">إعادة التعيين</button>
@@ -966,7 +971,7 @@ body.reordering .bar-seg,body.reordering .lresize{pointer-events:none}
 
 <script>
 window.__initGantt=function(){
-  var DAYS=30, KEY='jabeen-gantt-v4';
+  var KEY='jabeen-gantt-v4';
   var MONTHS=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
   var TYPES=['s1','s2','s3','s4'];
   var WEEK_NAMES=['الأول','الثاني','الثالث','الرابع','الخامس','السادس'];
@@ -1220,6 +1225,7 @@ window.__initGantt=function(){
   };
 
   var state=load(), sel=null, seq=0;
+  var DAYS=state.days||30;
   var g=document.getElementById('gantt');
   var tip=document.getElementById('dragTip');
   var note=document.getElementById('saveNote');
@@ -1273,6 +1279,22 @@ window.__initGantt=function(){
     return (d1.getMonth()===d2.getMonth()? d1.getDate() : fmt(a))+' – '+fmt(b);
   }
 
+  function applyGridCols(){
+    var cols='repeat('+DAYS+',1fr)';
+    var colsWithLabel='172px '+cols;
+    g.style.setProperty('--gcols',cols);
+    g.style.setProperty('--gcols-label',colsWithLabel);
+    var allRows=g.querySelectorAll('.g-row');
+    for(var r=0;r<allRows.length;r++){
+      if(allRows[r].closest('.group-lanes')) allRows[r].style.gridTemplateColumns=cols;
+      else allRows[r].style.gridTemplateColumns=colsWithLabel;
+    }
+    var allTracks=g.querySelectorAll('.g-track');
+    for(var t=0;t<allTracks.length;t++) allTracks[t].style.gridTemplateColumns=cols;
+    var allGrids=g.querySelectorAll('.g-grid');
+    for(var gi=0;gi<allGrids.length;gi++) allGrids[gi].style.gridTemplateColumns=cols;
+  }
+
   /* ---------- render ---------- */
   function render(){
     g.innerHTML='';
@@ -1302,6 +1324,8 @@ window.__initGantt=function(){
       g.appendChild(wrap);
       i++;
     }
+    applyGridCols();
+    g.style.minWidth=Math.max(900,DAYS*35+200)+'px';
   }
 
   function row(cls){var r=document.createElement('div');r.className='g-row '+(cls||'');return r;}
@@ -1762,6 +1786,18 @@ window.__initGantt=function(){
       if(dateInput.value){state.start=dateInput.value;save('تم تحديث التواريخ');render();}
     });
   }
+  var daysLabel=document.getElementById('daysLabel');
+  var addDaysBtn=document.getElementById('addDays');
+  var removeDaysBtn=document.getElementById('removeDays');
+  function updateDaysLabel(){if(daysLabel) daysLabel.textContent=DAYS+' يوم';}
+  updateDaysLabel();
+  if(addDaysBtn) addDaysBtn.addEventListener('click',function(){
+    DAYS+=7; state.days=DAYS; save('تمت إضافة أسبوع'); render(); updateDaysLabel();
+  });
+  if(removeDaysBtn) removeDaysBtn.addEventListener('click',function(){
+    if(DAYS<=14) return;
+    DAYS-=7; state.days=DAYS; save('تم حذف أسبوع'); render(); updateDaysLabel();
+  });
   var addLane=document.getElementById('addLane');
   if(addLane) addLane.addEventListener('click',function(){
     state.lanes.splice(Math.max(0,state.lanes.length-1),0,{
