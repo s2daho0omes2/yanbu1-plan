@@ -1279,24 +1279,22 @@ window.__initGantt=function(){
       var groupStart=i;
       while(i+1<state.lanes.length && state.lanes[i+1].name===lane.name) i++;
       var groupEnd=i;
-      if(groupStart===groupEnd){
-        g.appendChild(laneRow(lane,false));
-      } else {
-        var wrap=document.createElement('div');
-        wrap.className='lane-group';
-        var lbl=document.createElement('div');
-        lbl.className='group-label';
-        lbl.textContent=lane.name;
-        if(lane.sub){var s=document.createElement('small');s.textContent=lane.sub;lbl.appendChild(s);}
-        wrap.appendChild(lbl);
-        var lanesDiv=document.createElement('div');
-        lanesDiv.className='group-lanes';
-        for(var j=groupStart;j<=groupEnd;j++){
-          lanesDiv.appendChild(laneRow(state.lanes[j],j>groupStart));
-        }
-        wrap.appendChild(lanesDiv);
-        g.appendChild(wrap);
+      var wrap=document.createElement('div');
+      wrap.className='lane-group';
+      if(lane.kind==='ms') wrap.classList.add('ms-group');
+      var lbl=document.createElement('div');
+      lbl.className='group-label';
+      if(lane.kind==='ms'){lbl.style.color='var(--brass)';lbl.style.background='var(--brass-soft)';lbl.style.borderColor='var(--brass)';}
+      lbl.textContent=lane.name;
+      if(lane.sub){var s=document.createElement('small');s.textContent=lane.sub;lbl.appendChild(s);}
+      wrap.appendChild(lbl);
+      var lanesDiv=document.createElement('div');
+      lanesDiv.className='group-lanes';
+      for(var j=groupStart;j<=groupEnd;j++){
+        lanesDiv.appendChild(laneRow(state.lanes[j],j>groupStart));
       }
+      wrap.appendChild(lanesDiv);
+      g.appendChild(wrap);
       i++;
     }
   }
