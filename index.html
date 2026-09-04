@@ -1390,33 +1390,44 @@ window.__initGantt=function(){
     lab.appendChild(nm);
 
     var acts=document.createElement('span'); acts.className='lane-actions';
-    var add=document.createElement('button');
-    add.type='button'; add.className='mini'; add.textContent='+';
-    add.title='إضافة مهمة لهذا المسار';
-    add.addEventListener('click',function(){
-      lane.tasks.push({id:uid('t'),label:lane.kind==='ms'?'معلم جديد':'مهمة جديدة',start:1,span:4,type:lane.kind==='ms'?'ms':'s1'});
-      save('أُضيفت مهمة'); render();
-    });
-    acts.appendChild(add);
-    var dup=document.createElement('button');
-    dup.type='button'; dup.className='mini'; dup.textContent='⊕';
-    dup.title='إضافة صف إضافي لنفس الشركة (للمهام المتداخلة)';
-    dup.addEventListener('click',function(){
-      var idx=state.lanes.indexOf(lane);
-      var newLane={id:uid('l'),name:lane.name,sub:lane.sub||'',kind:lane.kind,h:36,
-        tasks:[{id:uid('t'),label:'مهمة جديدة',start:1,span:5,type:lane.kind==='ms'?'ms':'s1'}]};
-      state.lanes.splice(idx+1,0,newLane);
-      save('أُضيف صف إضافي لـ '+lane.name); render();
-    });
-    acts.appendChild(dup);
-    var rm=document.createElement('button');
-    rm.type='button'; rm.className='mini rm'; rm.textContent='×';
-    rm.title='حذف المسار';
-    rm.addEventListener('click',function(){
-      state.lanes=state.lanes.filter(function(l){return l!==lane;});
-      save('حُذف المسار'); render();
-    });
-    acts.appendChild(rm);
+    if(!isContRow){
+      var add=document.createElement('button');
+      add.type='button'; add.className='mini'; add.textContent='+';
+      add.title='إضافة مهمة لهذا المسار';
+      add.addEventListener('click',function(){
+        lane.tasks.push({id:uid('t'),label:lane.kind==='ms'?'معلم جديد':'مهمة جديدة',start:1,span:4,type:lane.kind==='ms'?'ms':'s1'});
+        save('أُضيفت مهمة'); render();
+      });
+      acts.appendChild(add);
+      var dup=document.createElement('button');
+      dup.type='button'; dup.className='mini'; dup.textContent='⊕';
+      dup.title='إضافة صف إضافي لنفس الشركة (للمهام المتداخلة)';
+      dup.addEventListener('click',function(){
+        var idx=state.lanes.indexOf(lane);
+        var newLane={id:uid('l'),name:lane.name,sub:lane.sub||'',kind:lane.kind,h:36,
+          tasks:[{id:uid('t'),label:'مهمة جديدة',start:1,span:5,type:lane.kind==='ms'?'ms':'s1'}]};
+        state.lanes.splice(idx+1,0,newLane);
+        save('أُضيف صف إضافي لـ '+lane.name); render();
+      });
+      acts.appendChild(dup);
+      var rm=document.createElement('button');
+      rm.type='button'; rm.className='mini rm'; rm.textContent='×';
+      rm.title='حذف المسار';
+      rm.addEventListener('click',function(){
+        state.lanes=state.lanes.filter(function(l){return l!==lane;});
+        save('حُذف المسار'); render();
+      });
+      acts.appendChild(rm);
+    } else {
+      var rmSub=document.createElement('button');
+      rmSub.type='button'; rmSub.className='mini rm'; rmSub.textContent='×';
+      rmSub.title='حذف هذا الصف الإضافي';
+      rmSub.addEventListener('click',function(){
+        state.lanes=state.lanes.filter(function(l){return l!==lane;});
+        save('حُذف صف إضافي'); render();
+      });
+      acts.appendChild(rmSub);
+    }
     lab.appendChild(acts);
 
     if(lane.sub&&!isContRow){var s=document.createElement('small');s.textContent=lane.sub;lab.appendChild(s);}
