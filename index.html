@@ -928,6 +928,11 @@ body.reordering .bar-seg,body.reordering .lresize{pointer-events:none}
 .lane-group .group-lanes{flex:1;min-width:0}
 .lane-group .group-lanes .g-row{grid-template-columns:repeat(30,1fr)}
 .lane-group .group-lanes .g-lane .g-lane-label{display:none}
+.lane-float-actions{
+  position:absolute;top:2px;left:4px;z-index:5;
+  display:flex;gap:3px;opacity:0;transition:opacity .15s ease;
+}
+.g-lane:hover .lane-float-actions{opacity:1}
 .lane-group .group-lanes .g-lane .g-grid{grid-column:1 / -1}
 .lane-group .group-lanes .g-lane .g-track{grid-column:1 / -1}
 .lane-group .group-lanes .g-row + .g-row{margin-top:2px}
@@ -1477,6 +1482,40 @@ window.__initGantt=function(){
 
     if(lane.sub&&!isContRow){var s=document.createElement('small');s.textContent=lane.sub;lab.appendChild(s);}
     r.appendChild(lab);
+
+    /* floating actions for grouped lanes (where label is hidden) */
+    var floatActs=document.createElement('div');
+    floatActs.className='lane-float-actions';
+    var addF=document.createElement('button');
+    addF.type='button'; addF.className='mini'; addF.textContent='+';
+    addF.title='إضافة مهمة';
+    addF.addEventListener('click',function(){
+      lane.tasks.push({id:uid('t'),label:lane.kind==='ms'?'معلم جديد':'مهمة جديدة',start:1,span:4,type:lane.kind==='ms'?'ms':'s1'});
+      save('أُضيفت مهمة'); render();
+    });
+    floatActs.appendChild(addF);
+    if(!isContRow){
+      var dupF=document.createElement('button');
+      dupF.type='button'; dupF.className='mini'; dupF.textContent='⊕';
+      dupF.title='إضافة صف إضافي';
+      dupF.addEventListener('click',function(){
+        var idx=state.lanes.indexOf(lane);
+        var newLane={id:uid('l'),name:lane.name,sub:lane.sub||'',kind:lane.kind,h:36,
+          tasks:[{id:uid('t'),label:'مهمة جديدة',start:1,span:5,type:lane.kind==='ms'?'ms':'s1'}]};
+        state.lanes.splice(idx+1,0,newLane);
+        save('أُضيف صف إضافي لـ '+lane.name); render();
+      });
+      floatActs.appendChild(dupF);
+    }
+    var rmF=document.createElement('button');
+    rmF.type='button'; rmF.className='mini rm'; rmF.textContent='×';
+    rmF.title=isContRow?'حذف هذا الصف الإضافي':'حذف المسار';
+    rmF.addEventListener('click',function(){
+      state.lanes=state.lanes.filter(function(l){return l!==lane;});
+      save('حُذف'); render();
+    });
+    floatActs.appendChild(rmF);
+    r.appendChild(floatActs);
 
     var grid=document.createElement('div'); grid.className='g-grid';
     for(var i=0;i<DAYS;i++){
