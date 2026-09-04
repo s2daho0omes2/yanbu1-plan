@@ -862,8 +862,10 @@ kbd{
 }
 .gantt{min-width:1060px}
 .g-row{grid-template-columns:158px repeat(30,1fr)}
-.lane-group .group-label{width:158px}
+.lane-group .group-label{width:130px}
 .lane-group .group-lanes .g-row{grid-template-columns:repeat(30,1fr)}
+.lane-group .group-lanes .g-lane .g-grid{grid-column:1 / -1}
+.lane-group .group-lanes .g-lane .g-track{grid-column:1 / -1}
 .fnode::before,.bar-seg.edit .lbl{}
 .flowline{min-width:1080px;gap:26px}
 .fcard h3,.fcard p,.ftrack ol,.ftrack .tname,.fmeta .tag{overflow-wrap:anywhere;word-break:break-word}
@@ -910,24 +912,26 @@ body.reordering .bar-seg,body.reordering .lresize{pointer-events:none}
 
 .lane-group{display:flex;flex-direction:row;margin-top:6px}
 .lane-group .group-label{
-  width:172px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  writing-mode:vertical-rl;text-orientation:mixed;
-  font-size:17px;font-weight:700;letter-spacing:1px;
+  width:140px;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:18px;font-weight:700;
   color:var(--accent);
   background:var(--accent-soft);
-  border-inline-end:2px solid var(--accent);
-  border-radius:0 6px 6px 0;
-  padding:12px 4px;
+  border-inline-start:3px solid var(--accent);
+  border-radius:6px 0 0 6px;
+  padding:16px 8px;
   cursor:default;
+  text-align:center;
+  line-height:1.4;
 }
-.lane-group .group-label small{display:block;font-weight:400;font-size:11px;color:var(--ink-3);margin-top:8px;letter-spacing:0}
+.lane-group .group-label small{display:block;font-weight:400;font-size:11px;color:var(--ink-3);margin-top:6px}
 .lane-group .group-lanes{flex:1;min-width:0}
 .lane-group .group-lanes .g-row{grid-template-columns:repeat(30,1fr)}
 .lane-group .group-lanes .g-lane .g-lane-label{display:none}
 .lane-group .group-lanes .g-lane .g-grid{grid-column:1 / -1}
 .lane-group .group-lanes .g-lane .g-track{grid-column:1 / -1}
 .lane-group .group-lanes .g-row + .g-row{margin-top:2px}
+.lane-group .group-lanes .g-lane .lresize{display:block}
 .g-lane.cont-lane{margin-top:-2px}
 .g-lane.cont-lane .g-lane-label{border-top:1px dashed var(--line-soft)}
 
