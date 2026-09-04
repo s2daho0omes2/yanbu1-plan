@@ -1583,7 +1583,7 @@ window.__initGantt=function(){
       if(lbl.getAttribute('contenteditable')==='true') return;
       if(e.detail>1) return;
       var colW=track.getBoundingClientRect().width/DAYS;
-      drag={mode:e.target.dataset.h||'move',x:e.clientX,st:t.start,sp:t.span,colW:colW,moved:false};
+      drag={mode:e.target.dataset.h||'move',x:e.clientX,y:e.clientY,st:t.start,sp:t.span,colW:colW,moved:false,srcLane:lane};
       select(el,lane,t);
       try{el.setPointerCapture(e.pointerId);}catch(err){}
     });
@@ -1596,10 +1596,30 @@ window.__initGantt=function(){
       if(!drag) return;
       var dx=drag.x-e.clientX;
       var delta=Math.round(dx/drag.colW);
-      if(Math.abs(dx)>3) drag.moved=true;
+      if(Math.abs(dx)>3||Math.abs(e.clientY-drag.y)>3) drag.moved=true;
       var ns=t.start, np=t.span;
       if(drag.mode==='move'){
         ns=clamp(drag.st+delta,1,DAYS-drag.sp+1); np=drag.sp;
+        /* vertical: find target lane under cursor */
+        var tracks=g.querySelectorAll('.g-track.edit');
+        for(var ti=0;ti<tracks.length;ti++){
+          var tb=tracks[ti].getBoundingClientRect();
+          if(e.clientY>=tb.top&&e.clientY<=tb.bottom){
+            var targetLaneId=tracks[ti].closest('.g-lane').getAttribute('data-lane');
+            if(targetLaneId && targetLaneId!==lane.id){
+              var targetLane=null;
+              for(var li=0;li<state.lanes.length;li++) if(state.lanes[li].id===targetLaneId){targetLane=state.lanes[li];break;}
+              if(targetLane){
+                lane.tasks=lane.tasks.filter(function(x){return x!==t;});
+                targetLane.tasks.push(t);
+                lane=targetLane;
+                drag.srcLane=targetLane;
+                tracks[ti].appendChild(el);
+              }
+            }
+            break;
+          }
+        }
       }else if(drag.mode==='s'){
         ns=clamp(drag.st+delta,1,drag.st+drag.sp-1); np=drag.sp-(ns-drag.st);
       }else{
@@ -1613,7 +1633,7 @@ window.__initGantt=function(){
     function endDrag(e){
       if(!drag) return;
       hideTip();
-      if(drag.moved) save();
+      if(drag.moved){save();render();}
       drag=null;
       try{el.releasePointerCapture(e.pointerId);}catch(err){}
     }
