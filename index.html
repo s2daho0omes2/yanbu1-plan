@@ -233,6 +233,10 @@ section{margin-top:clamp(44px,6vw,74px)}
 .g-lane{position:relative}
 .g-lane .g-grid{grid-column:2 / -1;grid-row:1;display:grid;grid-template-columns:repeat(30,1fr);height:34px}
 .g-lane .g-grid i{border-inline-start:1px solid var(--line-soft)}
+.g-lane .g-grid i.today{background:rgba(255,183,77,.12)}
+.today-overlay{position:absolute;top:0;bottom:0;background:rgba(255,183,77,.13);z-index:4;pointer-events:none;border-inline-start:2px solid rgba(255,183,77,.5);border-inline-end:2px solid rgba(255,183,77,.5)}
+.g-head .d.today{background:rgba(255,183,77,.25);border-radius:4px}
+.g-head .d.today .dn{color:#ffb74d;font-weight:900}
 .g-lane .g-grid i:nth-child(7n+1){border-inline-start-color:var(--line)}
 .bar-seg{
   height:23px;border-radius:3px;
@@ -559,7 +563,7 @@ td.c{text-align:center}
         <span id="daysLabel" class="num" style="min-width:50px;text-align:center">30 يوم</span>
         <button class="btn ghost" id="addDays" type="button" style="padding:2px 10px;min-width:0">+7</button>
       </span>
-      <button class="btn" id="addLane" type="button">+ مسار جديد</button>
+      <button class="btn" id="addLane" type="button">+ شركة جديدة</button>
       <button class="btn" id="copyJson" type="button">نسخ البيانات</button>
       <button class="btn ghost" id="resetBtn" type="button">إعادة التعيين</button>
       <span class="save-note" id="saveNote" role="status"></span>
@@ -867,7 +871,7 @@ kbd{
 }
 .gantt{min-width:1060px}
 .g-row{grid-template-columns:158px repeat(30,1fr)}
-.lane-group .group-label{width:130px}
+.lane-group .group-label{width:158px}
 .lane-group .group-lanes .g-row{grid-template-columns:repeat(30,1fr)}
 .lane-group .group-lanes .g-lane .g-grid{grid-column:1 / -1}
 .lane-group .group-lanes .g-lane .g-track{grid-column:1 / -1}
@@ -917,7 +921,7 @@ body.reordering .bar-seg,body.reordering .lresize{pointer-events:none}
 
 .lane-group{display:flex;flex-direction:row;margin-top:6px}
 .lane-group .group-label{
-  width:140px;flex-shrink:0;
+  width:172px;flex-shrink:0;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   font-size:18px;font-weight:700;
   color:var(--accent);
@@ -1279,6 +1283,15 @@ window.__initGantt=function(){
     return (d1.getMonth()===d2.getMonth()? d1.getDate() : fmt(a))+' – '+fmt(b);
   }
 
+  function getTodayCol(){
+    var now=new Date(); now.setHours(0,0,0,0);
+    for(var i=1;i<=DAYS;i++){
+      var d=dayDate(i); d.setHours(0,0,0,0);
+      if(d.getTime()===now.getTime()) return i;
+    }
+    return -1;
+  }
+
   function applyGridCols(){
     var cols='repeat('+DAYS+',1fr)';
     var colsWithLabel='172px '+cols;
@@ -1312,8 +1325,23 @@ window.__initGantt=function(){
       var lbl=document.createElement('div');
       lbl.className='group-label';
       if(lane.kind==='ms'){lbl.style.color='var(--brass)';lbl.style.background='var(--brass-soft)';lbl.style.borderColor='var(--brass)';}
-      lbl.textContent=lane.name;
+      var nameSpan=document.createElement('span');nameSpan.textContent=lane.name;lbl.appendChild(nameSpan);
       if(lane.sub){var s=document.createElement('small');s.textContent=lane.sub;lbl.appendChild(s);}
+      (function(ln,gs,ge,ns,ss){
+        ns.addEventListener('dblclick',function(e){
+          if(!document.body.classList.contains('can-edit')) return;
+          e.stopPropagation();editText(ns,function(v){
+            for(var k=gs;k<=ge;k++) state.lanes[k].name=v;
+            save();render();
+          });
+        });
+        if(ss) ss.addEventListener('dblclick',function(e){
+          if(!document.body.classList.contains('can-edit')) return;
+          e.stopPropagation();editText(ss,function(v){
+            ln.sub=v; save();
+          });
+        });
+      })(lane,groupStart,groupEnd,nameSpan,lbl.querySelector('small'));
       wrap.appendChild(lbl);
       var lanesDiv=document.createElement('div');
       lanesDiv.className='group-lanes';
@@ -1365,7 +1393,8 @@ window.__initGantt=function(){
     for(var i=1;i<=DAYS;i++){
       var dt=dayDate(i);
       var c=document.createElement('div');
-      c.className='d'+((i-1)%7===0?' w':'')+(isWeekend(i)?' we':'')+(dt.getDate()===1?' mstart':'');
+      var todayCol=getTodayCol();
+      c.className='d'+((i-1)%7===0?' w':'')+(isWeekend(i)?' we':'')+(dt.getDate()===1?' mstart':'')+(i===todayCol?' today':'');
       var dw=document.createElement('span'); dw.className='dw'; dw.textContent=DOW[dt.getDay()];
       var dn=document.createElement('span'); dn.className='dn'; dn.textContent=dt.getDate();
       c.appendChild(dw); c.appendChild(dn);
@@ -1542,10 +1571,14 @@ window.__initGantt=function(){
     r.appendChild(floatActs);
 
     var grid=document.createElement('div'); grid.className='g-grid';
+    var tc=getTodayCol();
     for(var i=0;i<DAYS;i++){
       var cell=document.createElement('i');
-      if(isWeekend(i+1)) cell.className='we';
-      if(dayDate(i+1).getDate()===1) cell.className+=' mstart';
+      var cls='';
+      if(isWeekend(i+1)) cls+='we ';
+      if(dayDate(i+1).getDate()===1) cls+='mstart ';
+      if(i+1===tc) cls+='today ';
+      cell.className=cls.trim();
       grid.appendChild(cell);
     }
     r.appendChild(grid);
@@ -1553,6 +1586,13 @@ window.__initGantt=function(){
     var track=document.createElement('div'); track.className='g-track edit';
     lane.tasks.forEach(function(t){track.appendChild(barEl(lane,t,track));});
     r.appendChild(track);
+    if(tc>0){
+      var ov=document.createElement('div');ov.className='today-overlay';
+      var pct=((tc-1)/DAYS*100);
+      var w=(100/DAYS);
+      ov.style.right=pct+'%';ov.style.width=w+'%';
+      r.appendChild(ov);
+    }
 
     function applyH(){
       grid.style.height=lane.h+'px';
@@ -1801,7 +1841,7 @@ window.__initGantt=function(){
   var addLane=document.getElementById('addLane');
   if(addLane) addLane.addEventListener('click',function(){
     state.lanes.splice(Math.max(0,state.lanes.length-1),0,{
-      id:uid('l'),name:'مسار جديد',sub:'اضغط نقرتين لتعديل الاسم',kind:'task',h:36,
+      id:uid('l'),name:'شركة جديدة',sub:'اضغط مرتين على الاسم للتعديل',kind:'task',h:36,
       tasks:[{id:uid('t'),label:'مهمة جديدة',start:1,span:5,type:'s1'}]
     });
     save('أُضيف مسار'); render();
