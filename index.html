@@ -557,7 +557,7 @@ td.c{text-align:center}
     </div>
 
     <div class="gtools">
-      <label class="ctl"><span>بداية التنفيذ</span><input type="date" id="startDate" value="2026-08-30"></label>
+      <label class="ctl"><span>بداية التنفيذ</span><input type="date" id="startDate" value="2026-11-01"></label>
       <span class="ctl" style="display:inline-flex;align-items:center;gap:6px"><span>المدة</span>
         <button class="btn ghost" id="removeDays" type="button" style="padding:2px 10px;min-width:0">−7</button>
         <span id="daysLabel" class="num" style="min-width:50px;text-align:center">30 يوم</span>
@@ -983,7 +983,7 @@ window.__initGantt=function(){
   function isWeekend(day){var g=dayDate(day).getDay();return g===5||g===6;}
 
   var DEFAULT={
-    "start": "2026-08-30",
+    "start": "2026-11-01",
     "lanes": [
       {
         "id": "l2",
@@ -1272,7 +1272,7 @@ window.__initGantt=function(){
   }
 
   function dayDate(day){
-    var parts=(state.start||'2026-08-30').split('-');
+    var parts=(state.start||'2026-11-01').split('-');
     var d=new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]));
     d.setDate(d.getDate()+(day-1));
     return d;
