@@ -779,6 +779,20 @@ kbd{
   display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:4;
 }
 .bar-seg.edit.sel .del{display:flex}
+.bar-seg.edit .chk{
+  position:absolute;top:-9px;inset-inline-end:14px;
+  width:19px;height:19px;border-radius:50%;border:1px solid var(--line);
+  background:var(--surface);color:var(--good);font-size:11px;line-height:1;
+  display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:5;
+}
+.bar-seg.edit.sel .chk{display:flex}
+.bar-seg.edit.done{opacity:.55;position:relative}
+.bar-seg.edit.done::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(-45deg,transparent,transparent 4px,rgba(255,255,255,.13) 4px,rgba(255,255,255,.13) 8px);
+  pointer-events:none;border-radius:inherit;
+}
+.bar-seg.edit.done .lbl{text-decoration:line-through;text-decoration-thickness:2px}
 .bar-seg.ms-bar{
   background:transparent;border:none;border-inline-start:2px solid var(--brass);
   border-radius:0;color:var(--ink-2);height:46px;top:0;
@@ -1680,6 +1694,16 @@ window.__initGantt=function(){
       editText(lbl,function(v){t.label=v;save();render();});
     });
     el.appendChild(pen);
+
+    var chk=document.createElement('button');
+    chk.type='button'; chk.className='chk'; chk.textContent=t.done?'↩':'✓'; chk.title=t.done?'إلغاء الإكمال':'تم';
+    chk.addEventListener('pointerdown',function(e){e.stopPropagation();});
+    chk.addEventListener('click',function(e){
+      e.stopPropagation();
+      t.done=!t.done; save(); render();
+    });
+    el.appendChild(chk);
+    if(t.done) el.classList.add('done');
 
     var drag=null;
     el.addEventListener('pointerdown',function(e){
@@ -2706,7 +2730,8 @@ body:not(.can-edit) .card-del{display:none!important}
 body:not(.can-edit) .bar-seg.edit{cursor:default;pointer-events:none}
 body:not(.can-edit) .bar-seg.edit .hnd,
 body:not(.can-edit) .bar-seg.edit .pen,
-body:not(.can-edit) .bar-seg.edit .del{display:none!important}
+body:not(.can-edit) .bar-seg.edit .del,
+body:not(.can-edit) .bar-seg.edit .chk{display:none!important}
 body:not(.can-edit) .g-lane-label .lname{cursor:default}
 .sync-pill.readonly .dot{background:var(--warn)}
 .sync-pill.readonly{border-color:var(--warn)}
