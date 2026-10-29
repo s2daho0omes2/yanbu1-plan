@@ -771,19 +771,19 @@ kbd{
   background:currentColor;opacity:0;transition:opacity .12s ease;
 }
 .bar-seg.edit:hover .hnd::after,.bar-seg.edit.sel .hnd::after{opacity:.55}
-.bar-seg.edit.sel{outline:2px solid var(--brass);outline-offset:2px;z-index:3}
+.bar-seg.edit.sel{outline:2px solid var(--brass);outline-offset:2px;z-index:3;overflow:visible}
 .bar-seg.edit .del{
   position:absolute;top:-12px;inset-inline-start:-9px;
   width:19px;height:19px;border-radius:50%;border:1px solid var(--line);
   background:var(--surface);color:var(--crit);font-size:12px;line-height:1;
-  display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:4;
+  display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:10;
 }
 .bar-seg.edit.sel .del{display:flex}
 .bar-seg.edit .chk{
   position:absolute;top:-12px;inset-inline-end:14px;
   width:19px;height:19px;border-radius:50%;border:1px solid var(--line);
   background:var(--surface);color:var(--good);font-size:11px;line-height:1;
-  display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:5;
+  display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:10;
 }
 .bar-seg.edit.sel .chk{display:flex}
 .bar-seg.edit.done{opacity:.55;position:relative}
@@ -833,7 +833,7 @@ kbd{
   position:absolute;top:-12px;inset-inline-start:14px;
   width:19px;height:19px;border-radius:50%;border:1px solid var(--line);
   background:var(--surface);color:var(--accent);font-size:11px;line-height:1;
-  display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:5;
+  display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:10;
 }
 .bar-seg.edit.sel .pen{display:flex}
 .bar-seg.edit .del{inset-inline-start:-9px}
